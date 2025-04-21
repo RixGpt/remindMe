@@ -35,7 +35,7 @@
 
       if (loginResult === "SUCCESS") {
         localStorage.setItem("userEmail", email);
-        window.location.href = "dashboard.html";
+        window.location.href = "dates.html";
       } else {
         // Try signup if login fails
         const signupResp = await fetch(scriptURL + `?action=signup&email=${email}&pin=${pin}`, { method: "POST" });
@@ -43,7 +43,7 @@
 
         if (signupResult === "SUCCESS") {
           localStorage.setItem("userEmail", email);
-          window.location.href = "dashboard.html";
+          window.location.href = "dates.html";
         } else if (signupResult === "EXISTS") {
           msg.textContent = "Incorrect PIN. Try again.";
         } else {
