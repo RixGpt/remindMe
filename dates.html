@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RemindMe - Dashboard</title>
+  <title>RemindMe - Dates</title>
   <meta charset="UTF-8" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
 </head>
@@ -37,30 +37,47 @@
     }
 
     async function loadBirthdays() {
-      const res = await fetch(`${scriptURL}?action=getBirthdays&email=${email}`, { method: "POST" });
-      const data = await res.json();
+      try {
+        const res = await fetch(`${scriptURL}?action=getBirthdays&email=${email}`, { method: "POST" });
+        const text = await res.text();
 
-      const list = document.getElementById("birthdayList");
-      list.innerHTML = "";
-      data.forEach(row => {
-        const li = document.createElement("li");
-        li.textContent = `${row.name} — ${row.date}`;
-        li.innerHTML += ` <button onclick="deleteBirthday('${row.name}')">❌</button>`;
-        list.appendChild(li);
-      });
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          console.error("Invalid JSON response from server:", text);
+          return;
+        }
+
+        const list = document.getElementById("birthdayList");
+        list.innerHTML = "";
+        data.forEach(row => {
+          const li = document.createElement("li");
+          li.textContent = `${row.name} — ${row.date}`;
+          li.innerHTML += ` <button onclick="deleteBirthday('${row.name}')">❌</button>`;
+          list.appendChild(li);
+        });
+      } catch (err) {
+        console.error("Error loading birthdays:", err);
+      }
     }
 
     async function deleteBirthday(name) {
-      await fetch(`${scriptURL}?action=deleteBirthday&email=${email}&name=${encodeURIComponent(name)}`, { method: "POST" });
+      await fetch(`${scriptURL}?action=deleteBirthday&email=${email}&name=${encodeURIComponent(name)}`, {
+        method: "POST"
+      });
       loadBirthdays();
     }
 
-    document.getElementById("birthdayForm").addEventListener("submit", async function(e) {
+    document.getElementById("birthdayForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const date = document.getElementById("date").value;
 
-      await fetch(`${scriptURL}?action=addBirthday&email=${email}&name=${encodeURIComponent(name)}&date=${date}`, { method: "POST" });
+      await fetch(`${scriptURL}?action=addBirthday&email=${email}&name=${encodeURIComponent(name)}&date=${date}`, {
+        method: "POST"
+      });
+
       document.getElementById("birthdayForm").reset();
       loadBirthdays();
     });
