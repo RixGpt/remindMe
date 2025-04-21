@@ -21,8 +21,6 @@
     <hr/>
 
     <ul id="birthdayList"></ul>
-
-    <!-- test --> 
   </main>
 
   <script>
@@ -36,6 +34,23 @@
     function logout() {
       localStorage.removeItem("userEmail");
       window.location.href = "login.html";
+    }
+
+    function editBirthday(name) {
+      document.getElementById(`display-${name}`).style.display = "none";
+      document.getElementById(`editForm-${name}`).style.display = "inline";
+    }
+
+    function cancelEdit(name) {
+      document.getElementById(`display-${name}`).style.display = "inline";
+      document.getElementById(`editForm-${name}`).style.display = "none";
+    }
+
+    async function updateBirthday(name, newDate) {
+      await fetch(`${scriptURL}?action=updateBirthday&email=${email}&name=${encodeURIComponent(name)}&date=${newDate}`, {
+        method: "POST"
+      });
+      loadBirthdays();
     }
 
     async function loadBirthdays() {
@@ -55,9 +70,23 @@
         list.innerHTML = "";
         data.forEach(row => {
           const li = document.createElement("li");
-          li.textContent = `${row.name} — ${row.date}`;
-          li.innerHTML += ` <button onclick="deleteBirthday('${row.name}')">❌</button>`;
+          li.innerHTML = `
+            <span id="display-${row.name}">${row.name} — ${row.date}</span>
+            <form id="editForm-${row.name}" style="display: none;">
+              <input type="date" id="editDate-${row.name}" value="${row.date}" />
+              <button type="submit">Save</button>
+              <button type="button" onclick="cancelEdit('${row.name}')">Cancel</button>
+            </form>
+            <button onclick="editBirthday('${row.name}')">✏️</button>
+            <button onclick="deleteBirthday('${row.name}')">❌</button>
+          `;
           list.appendChild(li);
+
+          document.getElementById(`editForm-${row.name}`).addEventListener("submit", function (e) {
+            e.preventDefault();
+            const newDate = document.getElementById(`editDate-${row.name}`).value;
+            updateBirthday(row.name, newDate);
+          });
         });
       } catch (err) {
         console.error("Error loading birthdays:", err);
