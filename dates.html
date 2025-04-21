@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RemindMe - Dashboard</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
+</head>
+<body>
+  <header>
+    <h2>🎂 Your Birthday Reminders</h2>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <main class="container">
+    <form id="birthdayForm">
+      <input type="text" id="name" placeholder="Name" required />
+      <input type="date" id="date" required />
+      <button type="submit">Add Birthday</button>
+    </form>
+
+    <hr/>
+
+    <ul id="birthdayList"></ul>
+  </main>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxN1ZAel2z5fBlmTy69w5e-h2hDs9jHCQsj73bS_p8jr3Zzrzadqnvhz0hUkhlObLhriQ/exec";
+    const email = localStorage.getItem("userEmail");
+
+    if (!email) {
+      window.location.href = "login.html";
+    }
+
+    function logout() {
+      localStorage.removeItem("userEmail");
+      window.location.href = "login.html";
+    }
+
+    async function loadBirthdays() {
+      const res = await fetch(`${scriptURL}?action=getBirthdays&email=${email}`, { method: "POST" });
+      const data = await res.json();
+
+      const list = document.getElementById("birthdayList");
+      list.innerHTML = "";
+      data.forEach(row => {
+        const li = document.createElement("li");
+        li.textContent = `${row.name} — ${row.date}`;
+        li.innerHTML += ` <button onclick="deleteBirthday('${row.name}')">❌</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    async function deleteBirthday(name) {
+      await fetch(`${scriptURL}?action=deleteBirthday&email=${email}&name=${encodeURIComponent(name)}`, { method: "POST" });
+      loadBirthdays();
+    }
+
+    document.getElementById("birthdayForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const date = document.getElementById("date").value;
+
+      await fetch(`${scriptURL}?action=addBirthday&email=${email}&name=${encodeURIComponent(name)}&date=${date}`, { method: "POST" });
+      document.getElementById("birthdayForm").reset();
+      loadBirthdays();
+    });
+
+    loadBirthdays();
+  </script>
+</body>
+</html>
