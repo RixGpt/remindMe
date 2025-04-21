@@ -24,7 +24,10 @@
   </main>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxN1ZAel2z5fBlmTy69w5e-h2hDs9jHCQsj73bS_p8jr3Zzrzadqnvhz0hUkhlObLhriQ/exec";
+    const airtableApiKey = "patvZfxpDZOYbjS27.dc2df00ca0e49de14030866cf08b05111606b9c79ad1f3d7a436a7bd697617ab"; // TEMP — replace for prod
+    const baseId = "YOUR_BASE_ID_HERE"; // e.g. "appABC123XYZ"
+    const tableName = "birthdays";
+    const apiURL = `https://api.airtable.com/v0/${baseId}/${tableName}`;
     const email = localStorage.getItem("userEmail");
 
     if (!email) {
@@ -36,66 +39,34 @@
       window.location.href = "login.html";
     }
 
-    function editBirthday(name) {
-      document.getElementById(`display-${name}`).style.display = "none";
-      document.getElementById(`editForm-${name}`).style.display = "inline";
-    }
-
-    function cancelEdit(name) {
-      document.getElementById(`display-${name}`).style.display = "inline";
-      document.getElementById(`editForm-${name}`).style.display = "none";
-    }
-
-    async function updateBirthday(name, newDate) {
-      await fetch(`${scriptURL}?action=updateBirthday&email=${email}&name=${encodeURIComponent(name)}&date=${newDate}`, {
-        method: "POST"
-      });
-      loadBirthdays();
-    }
-
     async function loadBirthdays() {
-      try {
-        const res = await fetch(`${scriptURL}?action=getBirthdays&email=${email}`, { method: "POST" });
-        const text = await res.text();
-
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch (err) {
-          console.error("Invalid JSON response from server:", text);
-          return;
+      const res = await fetch(`${apiURL}?filterByFormula=${encodeURIComponent(`email="${email}"`)}`, {
+        headers: {
+          Authorization: `Bearer ${airtableApiKey}`
         }
+      });
+      const data = await res.json();
 
-        const list = document.getElementById("birthdayList");
-        list.innerHTML = "";
-        data.forEach(row => {
-          const li = document.createElement("li");
-          li.innerHTML = `
-            <span id="display-${row.name}">${row.name} — ${row.date}</span>
-            <form id="editForm-${row.name}" style="display: none;">
-              <input type="date" id="editDate-${row.name}" value="${row.date}" />
-              <button type="submit">Save</button>
-              <button type="button" onclick="cancelEdit('${row.name}')">Cancel</button>
-            </form>
-            <button onclick="editBirthday('${row.name}')">✏️</button>
-            <button onclick="deleteBirthday('${row.name}')">❌</button>
-          `;
-          list.appendChild(li);
-
-          document.getElementById(`editForm-${row.name}`).addEventListener("submit", function (e) {
-            e.preventDefault();
-            const newDate = document.getElementById(`editDate-${row.name}`).value;
-            updateBirthday(row.name, newDate);
-          });
-        });
-      } catch (err) {
-        console.error("Error loading birthdays:", err);
-      }
+      const list = document.getElementById("birthdayList");
+      list.innerHTML = "";
+      data.records.forEach(record => {
+        const { name, date } = record.fields;
+        const id = record.id;
+        const li = document.createElement("li");
+        li.innerHTML = `
+          ${name} — ${date}
+          <button onclick="deleteBirthday('${id}')">❌</button>
+        `;
+        list.appendChild(li);
+      });
     }
 
-    async function deleteBirthday(name) {
-      await fetch(`${scriptURL}?action=deleteBirthday&email=${email}&name=${encodeURIComponent(name)}`, {
-        method: "POST"
+    async function deleteBirthday(id) {
+      await fetch(`${apiURL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${airtableApiKey}`
+        }
       });
       loadBirthdays();
     }
@@ -105,8 +76,19 @@
       const name = document.getElementById("name").value.trim();
       const date = document.getElementById("date").value;
 
-      await fetch(`${scriptURL}?action=addBirthday&email=${email}&name=${encodeURIComponent(name)}&date=${date}`, {
-        method: "POST"
+      await fetch(apiURL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${airtableApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fields: {
+            email,
+            name,
+            date
+          }
+        })
       });
 
       document.getElementById("birthdayForm").reset();
