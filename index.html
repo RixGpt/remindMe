@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RemindMe - Login</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
+</head>
+<body>
+  <header>
+    <h1>RemindMe</h1>
+    <p>Keep track of birthdays, home, and health reminders.</p>
+  </header>
+
+  <main class="container">
+    <form id="authForm">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="pin" placeholder="4-digit PIN" pattern="\\d{4}" required>
+      <button type="submit">Login / Sign Up</button>
+    </form>
+    <p id="message" style="color: red;"></p>
+  </main>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxN1ZAel2z5fBlmTy69w5e-h2hDs9jHCQsj73bS_p8jr3Zzrzadqnvhz0hUkhlObLhriQ/exec";
+
+    document.getElementById("authForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const pin = document.getElementById("pin").value.trim();
+      const msg = document.getElementById("message");
+
+      // Try login first
+      const loginResp = await fetch(scriptURL + `?action=login&email=${email}&pin=${pin}`, { method: "POST" });
+      const loginResult = await loginResp.text();
+
+      if (loginResult === "SUCCESS") {
+        localStorage.setItem("userEmail", email);
+        window.location.href = "dashboard.html";
+      } else {
+        // Try signup if login fails
+        const signupResp = await fetch(scriptURL + `?action=signup&email=${email}&pin=${pin}`, { method: "POST" });
+        const signupResult = await signupResp.text();
+
+        if (signupResult === "SUCCESS") {
+          localStorage.setItem("userEmail", email);
+          window.location.href = "dashboard.html";
+        } else if (signupResult === "EXISTS") {
+          msg.textContent = "Incorrect PIN. Try again.";
+        } else {
+          msg.textContent = "Something went wrong. Please try again.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
