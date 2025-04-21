@@ -1,24 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>RemindMe - Login</title>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css">
+  <title>RemindMe - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding-top: 5rem;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>RemindMe</h1>
-    <p>Keep track of birthdays, home, and health reminders.</p>
-  </header>
+  <div class="login-container">
+    <div class="text-center mb-4">
+      <h1 class="mb-1">RemindMe</h1>
+      <p class="text-muted">Keep track of birthdays, home, and health reminders.</p>
+    </div>
 
-  <main class="container">
-    <form id="authForm">
-      <input type="email" id="email" placeholder="Email" required>
-      <input type="text" id="pin" placeholder="4-digit PIN" pattern="\d{4}" required>
-      <button type="submit">Login / Sign Up</button>
+    <form id="authForm" class="border p-4 bg-white rounded shadow-sm">
+      <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" id="email" class="form-control" placeholder="you@example.com" required />
+      </div>
+      <div class="mb-3">
+        <label for="pin" class="form-label">4-digit PIN</label>
+        <input type="text" id="pin" class="form-control" pattern="\d{4}" placeholder="1234" required />
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Login / Sign Up</button>
+      <p id="message" class="text-danger mt-3 text-center"></p>
     </form>
-    <p id="message" style="color: red;"></p>
-  </main>
+  </div>
 
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbxN1ZAel2z5fBlmTy69w5e-h2hDs9jHCQsj73bS_p8jr3Zzrzadqnvhz0hUkhlObLhriQ/exec";
@@ -29,28 +49,32 @@
       const pin = document.getElementById("pin").value.trim();
       const msg = document.getElementById("message");
 
-      // Try login first
-      const loginResp = await fetch(scriptURL + `?action=login&email=${email}&pin=${pin}`, { method: "POST" });
-      const loginResult = await loginResp.text();
+      try {
+        const loginResp = await fetch(scriptURL + `?action=login&email=${email}&pin=${pin}`, { method: "POST" });
+        const loginResult = await loginResp.text();
 
-      if (loginResult === "SUCCESS") {
-        localStorage.setItem("userEmail", email);
-        window.location.href = "dates.html";
-      } else {
-        // Try signup if login fails
-        const signupResp = await fetch(scriptURL + `?action=signup&email=${email}&pin=${pin}`, { method: "POST" });
-        const signupResult = await signupResp.text();
-
-        if (signupResult === "SUCCESS") {
+        if (loginResult === "SUCCESS") {
           localStorage.setItem("userEmail", email);
           window.location.href = "dates.html";
-        } else if (signupResult === "EXISTS") {
-          msg.textContent = "Incorrect PIN. Try again.";
         } else {
-          msg.textContent = "Something went wrong. Please try again.";
+          const signupResp = await fetch(scriptURL + `?action=signup&email=${email}&pin=${pin}`, { method: "POST" });
+          const signupResult = await signupResp.text();
+
+          if (signupResult === "SUCCESS") {
+            localStorage.setItem("userEmail", email);
+            window.location.href = "dates.html";
+          } else if (signupResult === "EXISTS") {
+            msg.textContent = "Incorrect PIN. Try again.";
+          } else {
+            msg.textContent = "Something went wrong. Please try again.";
+          }
         }
+      } catch (error) {
+        msg.textContent = "Error connecting to the server.";
       }
     });
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
