@@ -24,8 +24,8 @@
   </main>
 
   <script>
-    const airtableApiKey = "patvZfxpDZOYbjS27.dc2df00ca0e49de14030866cf08b05111606b9c79ad1f3d7a436a7bd697617ab"; // TEMP — replace for prod
-    const baseId = "appGMW34rQEzsyHbj"; // e.g. "appABC123XYZ"
+    const airtableApiKey = "patvZfxpDZOYbjS27.dc2df00ca0e49de14030866cf08b05111606b9c79ad1f3d7a436a7bd697617ab"; // TEMP — hide before launch
+    const baseId = "YOUR_BASE_ID_HERE"; // ← REPLACE THIS
     const tableName = "birthdays";
     const apiURL = `https://api.airtable.com/v0/${baseId}/${tableName}`;
     const email = localStorage.getItem("userEmail");
@@ -40,15 +40,26 @@
     }
 
     async function loadBirthdays() {
-      const res = await fetch(`${apiURL}?filterByFormula=${encodeURIComponent(`email="${email}"`)}`, {
+      const filterFormula = `email="${email}"`;
+      console.log("Using filter formula:", filterFormula);
+
+      const res = await fetch(`${apiURL}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
         headers: {
           Authorization: `Bearer ${airtableApiKey}`
         }
       });
+
       const data = await res.json();
+      console.log("Airtable response:", data);
 
       const list = document.getElementById("birthdayList");
       list.innerHTML = "";
+
+      if (!data.records || data.records.length === 0) {
+        list.innerHTML = "<li>No birthdays found.</li>";
+        return;
+      }
+
       data.records.forEach(record => {
         const { name, date } = record.fields;
         const id = record.id;
