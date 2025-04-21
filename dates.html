@@ -25,7 +25,7 @@
 
   <script>
     const airtableApiKey = "patvZfxpDZOYbjS27.dc2df00ca0e49de14030866cf08b05111606b9c79ad1f3d7a436a7bd697617ab"; // TEMP — hide before launch
-    const baseId = "appGMW34rQEzsyHbj"; // ← REPLACE THIS
+    const baseId = "appGMW34rQEzsyHbj"; // ✅ Your actual Base ID
     const tableName = "birthdays";
     const apiURL = `https://api.airtable.com/v0/${baseId}/${tableName}`;
     const email = localStorage.getItem("userEmail");
@@ -37,6 +37,32 @@
     function logout() {
       localStorage.removeItem("userEmail");
       window.location.href = "login.html";
+    }
+
+    function editBirthday(id) {
+      document.getElementById(`view-${id}`).style.display = "none";
+      document.getElementById(`editForm-${id}`).style.display = "inline";
+    }
+
+    function cancelEdit(id) {
+      document.getElementById(`view-${id}`).style.display = "inline";
+      document.getElementById(`editForm-${id}`).style.display = "none";
+    }
+
+    async function updateBirthday(id, newDate) {
+      await fetch(`${apiURL}/${id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${airtableApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          fields: {
+            date: newDate
+          }
+        })
+      });
+      loadBirthdays();
     }
 
     async function loadBirthdays() {
@@ -63,12 +89,25 @@
       data.records.forEach(record => {
         const { name, date } = record.fields;
         const id = record.id;
+
         const li = document.createElement("li");
         li.innerHTML = `
-          ${name} — ${date}
+          <span id="view-${id}">${name} — ${date}</span>
+          <form id="editForm-${id}" style="display:none;">
+            <input type="date" id="editDate-${id}" value="${date}" />
+            <button type="submit">💾</button>
+            <button type="button" onclick="cancelEdit('${id}')">Cancel</button>
+          </form>
+          <button onclick="editBirthday('${id}')">✏️</button>
           <button onclick="deleteBirthday('${id}')">❌</button>
         `;
         list.appendChild(li);
+
+        document.getElementById(`editForm-${id}`).addEventListener("submit", function (e) {
+          e.preventDefault();
+          const newDate = document.getElementById(`editDate-${id}`).value;
+          updateBirthday(id, newDate);
+        });
       });
     }
 
