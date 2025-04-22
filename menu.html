@@ -1,18 +1,9 @@
 <!-- menu.html -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="index.html">RemindMe</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav me-auto">
-        <a class="nav-link text-white" href="dates.html">🎂 Birthdays</a>
-        <a class="nav-link text-white" href="home.html">🏠 Home</a>
-        <a class="nav-link text-white" href="health.html">🩺 Health</a>
-      </div>
-      <button class="btn btn-outline-light btn-sm" onclick="logout()">Logout</button>
-    </div>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 px-2">
+  <div class="d-flex gap-2">
+    <a href="dates.html" class="btn btn-outline-primary btn-sm">🎂 Birthdays</a>
+    <a href="home.html" class="btn btn-outline-primary btn-sm">🏠 Home</a>
+    <a href="health.html" class="btn btn-outline-primary btn-sm">🩺 Health</a>
   </div>
-</nav>
-
+  <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
+</div>
