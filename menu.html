@@ -1,9 +1,32 @@
-<!-- menu.html -->
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 px-2">
+<style>
+  .menu-bar a.btn {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.75rem;
+    border-color: #ced4da;
+    color: #495057;
+  }
+
+  .menu-bar a.btn:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+  }
+
+  .menu-bar .btn-logout {
+    color: #dc3545;
+    border-color: #f5c6cb;
+  }
+
+  .menu-bar .btn-logout:hover {
+    background-color: #f8d7da;
+    border-color: #f1b0b7;
+  }
+</style>
+
+<div class="menu-bar d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 px-2">
   <div class="d-flex gap-2">
-    <a href="dates.html" class="btn btn-outline-primary btn-sm">🎂 Birthdays</a>
-    <a href="home.html" class="btn btn-outline-primary btn-sm">🏠 Home</a>
-    <a href="health.html" class="btn btn-outline-primary btn-sm">🩺 Health</a>
+    <a href="dates.html" class="btn btn-outline-secondary btn-sm">🎂 Birthdays</a>
+    <a href="home.html" class="btn btn-outline-secondary btn-sm">🏠 Home</a>
+    <a href="health.html" class="btn btn-outline-secondary btn-sm">🩺 Health</a>
   </div>
-  <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
+  <button class="btn btn-outline-danger btn-sm btn-logout" onclick="logout()">Logout</button>
 </div>
