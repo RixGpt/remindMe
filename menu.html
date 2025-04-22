@@ -1,23 +1,18 @@
 <!-- menu.html -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand" href="index.html">RemindMe</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <a class="navbar-brand fw-bold" href="index.html">RemindMe</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="dates.html">Birthdays</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="home.html">Home Reminders</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="health.html">Health Checks</a>
-        </li>
-      </ul>
-      <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav me-auto">
+        <a class="nav-link text-white" href="dates.html">🎂 Birthdays</a>
+        <a class="nav-link text-white" href="home.html">🏠 Home</a>
+        <a class="nav-link text-white" href="health.html">🩺 Health</a>
+      </div>
+      <button class="btn btn-outline-light btn-sm" onclick="logout()">Logout</button>
     </div>
   </div>
 </nav>
+
