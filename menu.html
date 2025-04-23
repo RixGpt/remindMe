@@ -1,3 +1,4 @@
+<!-- menu.html -->
 <style>
   .menu-bar a.btn {
     font-size: 0.85rem;
@@ -20,13 +21,26 @@
     background-color: #f8d7da;
     border-color: #f1b0b7;
   }
+
+  .menu-bar i {
+    margin-right: 5px;
+  }
 </style>
 
 <div class="menu-bar d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 px-2">
-  <div class="d-flex gap-2"> Menu:
-    <a href="dates.html" class="btn btn-outline-secondary btn-sm">🎂 Birthdays</a>
-    <a href="home.html" class="btn btn-outline-secondary btn-sm">🏠 Home</a>
-    <a href="health.html" class="btn btn-outline-secondary btn-sm">🩺 Health</a>
+  <div class="d-flex gap-2 align-items-center">
+    <span class="text-muted small">Menu:</span>
+    <a href="dates.html" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-regular fa-calendar"></i> Birthdays
+    </a>
+    <a href="home.html" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-house"></i> Home
+    </a>
+    <a href="health.html" class="btn btn-outline-secondary btn-sm">
+      <i class="fa-solid fa-heart-pulse"></i> Health
+    </a>
   </div>
-  <button class="btn btn-outline-danger btn-sm btn-logout" onclick="logout()">Logout</button>
+  <button class="btn btn-outline-danger btn-sm btn-logout" onclick="logout()">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout
+  </button>
 </div>
