@@ -41,40 +41,69 @@
   </div>
 
   <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxN1ZAel2z5fBlmTy69w5e-h2hDs9jHCQsj73bS_p8jr3Zzrzadqnvhz0hUkhlObLhriQ/exec";
+  const AIRTABLE_API_KEY = "YOUR_API_KEY";
+  const AIRTABLE_BASE_ID = "YOUR_BASE_ID";
+  const AIRTABLE_TABLE_NAME = "users";
 
-    document.getElementById("authForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const email = document.getElementById("email").value.trim();
-      const pin = document.getElementById("pin").value.trim();
-      const msg = document.getElementById("message");
+  async function fetchUser(email) {
+    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}?filterByFormula=LOWER(email)%3D'${email.toLowerCase()}'`;
+    const resp = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+      },
+    });
+    const data = await resp.json();
+    return data.records;
+  }
 
-      try {
-        const loginResp = await fetch(scriptURL + `?action=login&email=${email}&pin=${pin}`, { method: "POST" });
-        const loginResult = await loginResp.text();
+  async function createUser(email, pin) {
+    const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`;
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fields: { email, pin },
+      }),
+    });
+    return resp.ok;
+  }
 
-        if (loginResult === "SUCCESS") {
+  document.getElementById("authForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const pin = document.getElementById("pin").value.trim();
+    const msg = document.getElementById("message");
+
+    try {
+      const users = await fetchUser(email);
+      if (users.length > 0) {
+        const storedPin = users[0].fields.pin.toString();
+        if (storedPin === pin) {
           localStorage.setItem("userEmail", email);
           window.location.href = "dates.html";
         } else {
-          const signupResp = await fetch(scriptURL + `?action=signup&email=${email}&pin=${pin}`, { method: "POST" });
-          const signupResult = await signupResp.text();
-
-          if (signupResult === "SUCCESS") {
-            localStorage.setItem("userEmail", email);
-            window.location.href = "dates.html";
-          } else if (signupResult === "EXISTS") {
-            msg.textContent = "Incorrect PIN. Try again.";
-          } else {
-            msg.textContent = "Something went wrong. Please try again.";
-          }
+          msg.textContent = "Incorrect PIN. Try again.";
         }
-      } catch (error) {
-        msg.textContent = "Error connecting to the server.";
+      } else {
+        const success = await createUser(email, pin);
+        if (success) {
+          localStorage.setItem("userEmail", email);
+          window.location.href = "dates.html";
+        } else {
+          msg.textContent = "Signup failed. Try again.";
+        }
       }
-    });
-  </script>
+    } catch (error) {
+      console.error(error);
+      msg.textContent = "Something went wrong. Try again.";
+    }
+  });
+</script>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
