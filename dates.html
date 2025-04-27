@@ -85,12 +85,10 @@
     document.getElementById(`edit-${id}`).style.display = "none";
   }
 
+  // 🛠️ Fixed version — prevents timezone shift by slicing the raw date string
   function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    const yyyy = date.getFullYear();
-    return `${mm}-${dd}-${yyyy}`;
+    const [year, month, day] = dateStr.split("T")[0].split("-");
+    return `${month}-${day}-${year}`;
   }
 
   async function updateBirthday(id) {
@@ -197,19 +195,6 @@
   }
 
   loadBirthdays();
-</script>
-
-<script>
-  function logout() {
-    localStorage.removeItem("userEmail");
-    window.location.href = "index.html";
-  }
-
-  fetch('menu.html')
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById('menu-container').innerHTML = html;
-    });
 </script>
 
 <script>
