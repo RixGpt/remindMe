@@ -59,137 +59,160 @@
   </div>
 
   <script>
-    const airtableApiKey = "patvZfxpDZOYbjS27.dc2df00ca0e49de14030866cf08b05111606b9c79ad1f3d7a436a7bd697617ab";
-    const baseId = "appGMW34rQEzsyHbj";
-    const tableName = "birthdays";
-    const apiURL = `https://api.airtable.com/v0/${baseId}/${tableName}`;
-    const email = localStorage.getItem("userEmail");
+  const airtableApiKey = "patvZfxpDZOYbjS27.dc2df00ca0e49de14030866cf08b05111606b9c79ad1f3d7a436a7bd697617ab";
+  const baseId = "appGMW34rQEzsyHbj";
+  const tableName = "birthdays";
+  const apiURL = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+  const email = localStorage.getItem("userEmail");
 
-    if (!email) {
-      window.location.href = "login.html";
-    }
+  if (!email) {
+    window.location.href = "login.html";
+  }
 
-    function logout() {
-      localStorage.removeItem("userEmail");
-      window.location.href = "login.html";
-    }
+  function logout() {
+    localStorage.removeItem("userEmail");
+    window.location.href = "login.html";
+  }
 
-    function editBirthday(id) {
-      document.getElementById(`view-${id}`).style.display = "none";
-      document.getElementById(`edit-${id}`).style.display = "inline";
-    }
+  function editBirthday(id) {
+    document.getElementById(`view-${id}`).style.display = "none";
+    document.getElementById(`edit-${id}`).style.display = "table-row";
+  }
 
-    function cancelEdit(id) {
-      document.getElementById(`view-${id}`).style.display = "table-row";
-      document.getElementById(`edit-${id}`).style.display = "none";
-    }
+  function cancelEdit(id) {
+    document.getElementById(`view-${id}`).style.display = "table-row";
+    document.getElementById(`edit-${id}`).style.display = "none";
+  }
 
-    async function updateBirthday(id) {
-      const newDate = document.getElementById(`editDate-${id}`).value;
-      await fetch(`${apiURL}/${id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${airtableApiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          fields: {
-            date: newDate
-          }
-        })
-      });
-      loadBirthdays();
-    }
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    return `${mm}-${dd}-${yyyy}`;
+  }
 
-    async function deleteBirthday(id) {
-      await fetch(`${apiURL}/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${airtableApiKey}`
+  async function updateBirthday(id) {
+    const newDate = document.getElementById(`editDate-${id}`).value;
+    await fetch(`${apiURL}/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        fields: {
+          date: newDate
         }
-      });
-      loadBirthdays();
-    }
+      })
+    });
+    loadBirthdays();
+  }
 
-    document.getElementById("birthdayForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const date = document.getElementById("date").value;
+  async function deleteBirthday(id) {
+    await fetch(`${apiURL}/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`
+      }
+    });
+    loadBirthdays();
+  }
 
-      await fetch(apiURL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${airtableApiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          fields: {
-            email,
-            name,
-            date
-          }
-        })
-      });
+  document.getElementById("birthdayForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const date = document.getElementById("date").value;
 
-      document.getElementById("birthdayForm").reset();
-      loadBirthdays();
+    await fetch(apiURL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        fields: {
+          email,
+          name,
+          date
+        }
+      })
     });
 
-    async function loadBirthdays() {
-      const filterFormula = `email="${email}"`;
-      const res = await fetch(`${apiURL}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
-        headers: {
-          Authorization: `Bearer ${airtableApiKey}`
-        }
-      });
-      const data = await res.json();
+    document.getElementById("birthdayForm").reset();
+    loadBirthdays();
+  });
 
-      const tbody = document.getElementById("birthdayList");
-      tbody.innerHTML = "";
-
-      if (!data.records || data.records.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-muted text-center">No birthdays found.</td></tr>';
-        return;
+  async function loadBirthdays() {
+    const filterFormula = `email="${email}"`;
+    const res = await fetch(`${apiURL}?filterByFormula=${encodeURIComponent(filterFormula)}`, {
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`
       }
+    });
+    const data = await res.json();
 
-      data.records.forEach(record => {
-        const { name, date } = record.fields;
-        const id = record.id;
+    const tbody = document.getElementById("birthdayList");
+    tbody.innerHTML = "";
 
-        const viewRow = document.createElement("tr");
-        viewRow.id = `view-${id}`;
-        viewRow.innerHTML = `
-          <td>${name}</td>
-          <td>${date}</td>
-          <td>
-            <button onclick="editBirthday('${id}')" class="btn btn-sm btn-outline-primary me-1">Edit</button>
-            <button onclick="deleteBirthday('${id}')" class="btn btn-sm btn-outline-danger">Delete</button>
-          </td>
-        `;
-
-        const editRow = document.createElement("tr");
-        editRow.id = `edit-${id}`;
-        editRow.style.display = "none";
-        editRow.innerHTML = `
-          <td>${name}</td>
-          <td>
-            <input type="date" id="editDate-${id}" class="form-control form-control-sm" value="${date}" />
-          </td>
-          <td>
-            <button class="btn btn-sm btn-success me-1" onclick="updateBirthday('${id}')">Save</button>
-            <button class="btn btn-sm btn-secondary" onclick="cancelEdit('${id}')">Cancel</button>
-          </td>
-        `;
-
-        tbody.appendChild(viewRow);
-        tbody.appendChild(editRow);
-      });
+    if (!data.records || data.records.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" class="text-muted text-center">No birthdays found.</td></tr>';
+      return;
     }
 
-    loadBirthdays();
-  </script>
+    data.records.forEach(record => {
+      const { name, date } = record.fields;
+      const id = record.id;
+      const formattedDate = formatDate(date);
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+      const viewRow = document.createElement("tr");
+      viewRow.id = `view-${id}`;
+      viewRow.innerHTML = `
+        <td>${name}</td>
+        <td>${formattedDate}</td>
+        <td>
+          <button onclick="editBirthday('${id}')" class="btn btn-sm btn-outline-primary me-1">Edit</button>
+          <button onclick="deleteBirthday('${id}')" class="btn btn-sm btn-outline-danger">Delete</button>
+        </td>
+      `;
+
+      const editRow = document.createElement("tr");
+      editRow.id = `edit-${id}`;
+      editRow.style.display = "none";
+      editRow.innerHTML = `
+        <td>${name}</td>
+        <td>
+          <input type="date" id="editDate-${id}" class="form-control form-control-sm" value="${date}" />
+        </td>
+        <td>
+          <button class="btn btn-sm btn-success me-1" onclick="updateBirthday('${id}')">Save</button>
+          <button class="btn btn-sm btn-secondary" onclick="cancelEdit('${id}')">Cancel</button>
+        </td>
+      `;
+
+      tbody.appendChild(viewRow);
+      tbody.appendChild(editRow);
+    });
+  }
+
+  loadBirthdays();
+</script>
+
+<script>
+  function logout() {
+    localStorage.removeItem("userEmail");
+    window.location.href = "index.html";
+  }
+
+  fetch('menu.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('menu-container').innerHTML = html;
+    });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
   function logout() {
