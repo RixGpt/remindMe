@@ -137,7 +137,7 @@
           fields: {
             email,
             name,
-            last_name: lastName,
+            lastName,
             date
           }
         })
@@ -165,7 +165,7 @@
       }
 
       data.records.forEach(record => {
-        const { name, last_name, date } = record.fields;
+        const { name, lastName, date } = record.fields;
         const id = record.id;
         const formattedDate = formatDate(date);
 
@@ -173,7 +173,7 @@
         viewRow.id = `view-${id}`;
         viewRow.innerHTML = `
           <td>${name}</td>
-          <td>${last_name || ""}</td>
+          <td>${lastName || ""}</td>
           <td>${formattedDate}</td>
           <td>
             <button onclick="editBirthday('${id}')" class="btn btn-sm btn-outline-primary me-1">Edit</button>
@@ -186,7 +186,7 @@
         editRow.style.display = "none";
         editRow.innerHTML = `
           <td>${name}</td>
-          <td>${last_name || ""}</td>
+          <td>${lastName || ""}</td>
           <td>
             <input type="date" id="editDate-${id}" class="form-control form-control-sm" value="${date}" />
           </td>
