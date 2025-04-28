@@ -34,13 +34,16 @@
     </div>
 
     <form id="birthdayForm" class="row g-3 mb-4">
-      <div class="col-md-5">
-        <input type="text" id="name" class="form-control" placeholder="Name" required />
+      <div class="col-md-4">
+        <input type="text" id="name" class="form-control" placeholder="First Name" required />
       </div>
-      <div class="col-md-5">
+      <div class="col-md-4">
+        <input type="text" id="lastName" class="form-control" placeholder="Last Name" required />
+      </div>
+      <div class="col-md-4">
         <input type="date" id="date" class="form-control" required />
       </div>
-      <div class="col-md-2">
+      <div class="col-md-12">
         <button type="submit" class="btn btn-primary w-100">Add</button>
       </div>
     </form>
@@ -48,13 +51,15 @@
     <table class="table table-bordered table-striped align-middle" id="birthdayTable">
       <thead class="table-light">
         <tr>
-          <th>Name</th>
+          <th>First Name</th>
+          <th>Last Name</th>
           <th>Date</th>
           <th style="width: 160px;">Actions</th>
         </tr>
       </thead>
+
       <tbody id="birthdayList">
-        <tr><td colspan="3" class="text-muted text-center">Loading...</td></tr>
+        <tr><td colspan="4" class="text-muted text-center">Loading...</td></tr>
       </tbody>
     </table>
   </div>
@@ -119,24 +124,26 @@
   }
 
   document.getElementById("birthdayForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const date = document.getElementById("date").value;
+  e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const date = document.getElementById("date").value;
 
-    await fetch(apiURL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${airtableApiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        fields: {
-          email,
-          name,
-          date
-        }
-      })
-    });
+  await fetch(apiURL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${airtableApiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      fields: {
+        email,
+        name,
+        last_name: lastName,
+        date
+      }
+    })
+  });
 
     document.getElementById("birthdayForm").reset();
     loadBirthdays();
@@ -160,34 +167,41 @@
     }
 
     data.records.forEach(record => {
-      const { name, date } = record.fields;
-      const id = record.id;
-      const formattedDate = formatDate(date);
+    const { name, last_name, date } = record.fields;
+    const id = record.id;
+    const formattedDate = formatDate(date);
+  
+    const viewRow = document.createElement("tr");
+    viewRow.id = `view-${id}`;
+    viewRow.innerHTML = `
+      <td>${name}</td>
+      <td>${last_name || ""}</td>
+      <td>${formattedDate}</td>
+      <td>
+        <button onclick="editBirthday('${id}')" class="btn btn-sm btn-outline-primary me-1">Edit</button>
+        <button onclick="deleteBirthday('${id}')" class="btn btn-sm btn-outline-danger">Delete</button>
+      </td>
+    `;
+  
+    const editRow = document.createElement("tr");
+    editRow.id = `edit-${id}`;
+    editRow.style.display = "none";
+    editRow.innerHTML = `
+      <td>${name}</td>
+      <td>${last_name || ""}</td>
+      <td>
+        <input type="date" id="editDate-${id}" class="form-control form-control-sm" value="${date}" />
+      </td>
+      <td>
+        <button class="btn btn-sm btn-success me-1" onclick="updateBirthday('${id}')">Save</button>
+        <button class="btn btn-sm btn-secondary" onclick="cancelEdit('${id}')">Cancel</button>
+      </td>
+    `;
+  
+    tbody.appendChild(viewRow);
+    tbody.appendChild(editRow);
+  });
 
-      const viewRow = document.createElement("tr");
-      viewRow.id = `view-${id}`;
-      viewRow.innerHTML = `
-        <td>${name}</td>
-        <td>${formattedDate}</td>
-        <td>
-          <button onclick="editBirthday('${id}')" class="btn btn-sm btn-outline-primary me-1">Edit</button>
-          <button onclick="deleteBirthday('${id}')" class="btn btn-sm btn-outline-danger">Delete</button>
-        </td>
-      `;
-
-      const editRow = document.createElement("tr");
-      editRow.id = `edit-${id}`;
-      editRow.style.display = "none";
-      editRow.innerHTML = `
-        <td>${name}</td>
-        <td>
-          <input type="date" id="editDate-${id}" class="form-control form-control-sm" value="${date}" />
-        </td>
-        <td>
-          <button class="btn btn-sm btn-success me-1" onclick="updateBirthday('${id}')">Save</button>
-          <button class="btn btn-sm btn-secondary" onclick="cancelEdit('${id}')">Cancel</button>
-        </td>
-      `;
 
       tbody.appendChild(viewRow);
       tbody.appendChild(editRow);
