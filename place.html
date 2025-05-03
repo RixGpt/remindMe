@@ -19,29 +19,23 @@
     td input[type="date"] {
       max-width: 160px;
     }
-    .btn-purple {
-      background-color: #6f42c1;
-      border-color: #6f42c1;
-      color: white;
+    .action-link {
+      margin-right: 12px;
+      text-decoration: none;
+      font-weight: 500;
     }
-    .btn-purple:hover {
-      background-color: #5a32a3;
-    }
-    .btn-light-purple {
-      border-color: #b8a3dc;
+    .text-purple {
       color: #6f42c1;
-      background-color: white;
     }
-    .btn-light-purple:hover {
-      background-color: #eae2f8;
+    .text-orange {
+      color: #d77b00;
     }
-    .btn-orange {
-      background-color: #ffdda1;
-      border-color: #ffc107;
-      color: #6c4400;
-    }
-    .btn-orange:hover {
-      background-color: #ffc860;
+    .text-purple:hover,
+    .text-orange:hover,
+    .text-muted:hover,
+    .text-danger:hover {
+      text-decoration: underline;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -160,10 +154,10 @@
           <td>${formatDate(lastUpdated)}</td>
           <td>${formatDate(nextDue)}</td>
           <td>
-            <button class="btn btn-sm btn-purple me-1" onclick="markDone('${id}', '${itemTypeId}')">Done</button>
-            <button class="btn btn-sm btn-orange me-1" onclick="delayReminder('${id}')">Delay</button>
-            <button class="btn btn-sm btn-light-purple me-1" onclick="editReminder('${id}', '${name}', '${itemTypeId}', '${lastUpdated}')">Edit</button>
-            <button class="btn btn-sm btn-outline-danger" onclick="deleteReminder('${id}')">Delete</button>
+            <a href="#" class="action-link text-purple" onclick="markDone('${id}', '${itemTypeId}')">Done</a>
+            <a href="#" class="action-link text-orange" onclick="delayReminder('${id}')">Delay</a>
+            <a href="#" class="action-link text-muted" onclick="editReminder('${id}', '${name}', '${itemTypeId}', '${lastUpdated}')">Edit</a>
+            <a href="#" class="action-link text-danger" onclick="deleteReminder('${id}')">Delete</a>
           </td>
         `;
         tbody.appendChild(viewRow);
