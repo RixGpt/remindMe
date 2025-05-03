@@ -19,10 +19,10 @@
     td input[type="date"] {
       max-width: 160px;
     }
-    .action-link {
+    .action-icon {
       margin-right: 12px;
-      text-decoration: none;
-      font-weight: 500;
+      cursor: pointer;
+      font-size: 1rem;
     }
     .text-purple {
       color: #6f42c1;
@@ -34,8 +34,7 @@
     .text-orange:hover,
     .text-muted:hover,
     .text-danger:hover {
-      text-decoration: underline;
-      cursor: pointer;
+      opacity: 0.8;
     }
   </style>
 </head>
@@ -154,10 +153,10 @@
           <td>${formatDate(lastUpdated)}</td>
           <td>${formatDate(nextDue)}</td>
           <td>
-            <a href="#" class="action-link text-purple" onclick="markDone('${id}', '${itemTypeId}')">Done</a>
-            <a href="#" class="action-link text-orange" onclick="delayReminder('${id}')">Delay</a>
-            <a href="#" class="action-link text-muted" onclick="editReminder('${id}', '${name}', '${itemTypeId}', '${lastUpdated}')">Edit</a>
-            <a href="#" class="action-link text-danger" onclick="deleteReminder('${id}')">Delete</a>
+            <i class="fas fa-check-circle text-purple action-icon" title="Done" onclick="markDone('${id}', '${itemTypeId}')"></i>
+            <i class="fas fa-clock text-orange action-icon" title="Delay" onclick="delayReminder('${id}')"></i>
+            <i class="fas fa-edit text-muted action-icon" title="Edit" onclick="editReminder('${id}', '${name}', '${itemTypeId}', '${lastUpdated}')"></i>
+            <i class="fas fa-trash text-danger action-icon" title="Delete" onclick="deleteReminder('${id}')"></i>
           </td>
         `;
         tbody.appendChild(viewRow);
