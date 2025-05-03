@@ -140,22 +140,20 @@
       }
 
       data.records.forEach(record => {
-        const { name, lastUpdated, nextDue } = record.fields;
-        const itemTypeId = record.fields.itemType?.[0];
-        const itemType = itemTypeMap[itemTypeId]?.itemName || "—";
+        const { name, lastUpdated, nextDue, itemTypeName } = record.fields;
         const id = record.id;
 
         const viewRow = document.createElement("tr");
         viewRow.id = `view-${id}`;
         viewRow.innerHTML = `
           <td>${name}</td>
-          <td>${itemType}</td>
+          <td>${itemTypeName}</td>
           <td>${formatDate(lastUpdated)}</td>
           <td>${formatDate(nextDue)}</td>
           <td>
-            <i class="fas fa-check-circle text-purple action-icon" title="Done" onclick="markDone('${id}', '${itemTypeId}')"></i>
+            <i class="fas fa-check-circle text-purple action-icon" title="Done" onclick="markDone('${id}')"></i>
             <i class="fas fa-clock text-orange action-icon" title="Delay" onclick="delayReminder('${id}')"></i>
-            <i class="fas fa-edit text-muted action-icon" title="Edit" onclick="editReminder('${id}', '${name}', '${itemTypeId}', '${lastUpdated}')"></i>
+            <i class="fas fa-edit text-muted action-icon" title="Edit" onclick="editReminder('${id}', '${name}', '${itemTypeName}', '${lastUpdated}')"></i>
             <i class="fas fa-trash text-danger action-icon" title="Delete" onclick="deleteReminder('${id}')"></i>
           </td>
         `;
@@ -165,9 +163,9 @@
         editRow.id = `edit-${id}`;
         editRow.style.display = "none";
 
-        const itemOptions = Object.entries(itemTypeMap).map(([typeId, val]) => {
-          const selected = itemTypeId === typeId ? 'selected' : '';
-          return `<option value="${typeId}" ${selected}>${val.itemName}</option>`;
+        const itemOptions = Object.values(itemTypeMap).map(val => {
+          const selected = itemTypeName === val.itemName ? 'selected' : '';
+          return `<option value="${val.itemName}" ${selected}>${val.itemName}</option>`;
         }).join("");
 
         editRow.innerHTML = `
@@ -184,7 +182,7 @@
       });
     }
 
-    function editReminder(id, name, itemTypeId, lastUpdated) {
+    function editReminder(id, name, itemTypeName, lastUpdated) {
       document.getElementById(`view-${id}`).style.display = "none";
       document.getElementById(`edit-${id}`).style.display = "table-row";
     }
@@ -196,9 +194,9 @@
 
     async function saveEdit(id) {
       const name = document.getElementById(`editName-${id}`).value.trim();
-      const itemTypeId = document.getElementById(`editItemType-${id}`).value;
+      const itemTypeName = document.getElementById(`editItemType-${id}`).value;
       const lastUpdated = document.getElementById(`editLastUpdated-${id}`).value;
-      const interval = itemTypeMap[itemTypeId]?.intervalMonths || 6;
+      const interval = Object.values(itemTypeMap).find(it => it.itemName === itemTypeName)?.intervalMonths || 6;
       const nextDue = addMonths(lastUpdated, interval);
 
       await fetch(`${apiURL}/${id}`, {
@@ -207,7 +205,7 @@
           Authorization: `Bearer ${airtableApiKey}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ fields: { name, itemType: [itemTypeId], lastUpdated, nextDue } })
+        body: JSON.stringify({ fields: { name, itemTypeName, intervalMonths: interval, lastUpdated, nextDue } })
       });
 
       loadPlaces();
@@ -222,10 +220,14 @@
       loadPlaces();
     }
 
-    async function markDone(id, itemTypeId) {
+    async function markDone(id) {
+      const res = await fetch(`${apiURL}/${id}`, {
+        headers: { Authorization: `Bearer ${airtableApiKey}` }
+      });
+      const record = await res.json();
+      const interval = record.fields.intervalMonths || 6;
       const today = new Date().toISOString().split("T")[0];
-      const intervalMonths = itemTypeMap[itemTypeId]?.intervalMonths || 6;
-      const nextDue = addMonths(today, intervalMonths);
+      const nextDue = addMonths(today, interval);
       await fetch(`${apiURL}/${id}`, {
         method: "PATCH",
         headers: {
@@ -260,8 +262,9 @@
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const itemTypeId = document.getElementById("itemType").value;
-      const lastUpdated = document.getElementById("lastUpdated").value;
+      const itemTypeName = itemTypeMap[itemTypeId].itemName;
       const intervalMonths = itemTypeMap[itemTypeId].intervalMonths;
+      const lastUpdated = document.getElementById("lastUpdated").value;
       const nextDue = addMonths(lastUpdated, intervalMonths);
 
       await fetch(apiURL, {
@@ -270,7 +273,7 @@
           Authorization: `Bearer ${airtableApiKey}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ fields: { name, itemType: [itemTypeId], lastUpdated, nextDue, email } })
+        body: JSON.stringify({ fields: { name, itemTypeName, intervalMonths, lastUpdated, nextDue, email } })
       });
 
       document.getElementById("placeForm").reset();
