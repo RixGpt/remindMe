@@ -16,9 +16,6 @@
       margin: 0 auto;
       padding-top: 2rem;
     }
-    td input[type="date"] {
-      max-width: 160px;
-    }
     .action-icon {
       margin-right: 12px;
       cursor: pointer;
@@ -46,9 +43,7 @@
 
     <div id="menu-container"></div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="mb-0">Place Reminders</h2>
-    </div>
+    <h2 class="mb-4">Place Reminders</h2>
 
     <form id="placeForm" class="row g-3 mb-4">
       <div class="col-md-4">
@@ -81,212 +76,226 @@
     </table>
   </div>
 
-  <script>
-    const airtableApiKey = "patvZfxpDZOYbjS27.dc2df00ca0e49de14030866cf08b05111606b9c79ad1f3d7a436a7bd697617ab";
-    const baseId = "appGMW34rQEzsyHbj";
-    const placeTable = "place";
-    const itemTypesTable = "itemTypes";
-    const email = localStorage.getItem("userEmail");
+<script>
+  const airtableApiKey = "YOUR_API_KEY";
+  const baseId = "YOUR_BASE_ID";
+  const placeTable = "place";
+  const itemTypesTable = "itemTypes";
+  const email = localStorage.getItem("userEmail");
 
-    if (!email) {
-      window.location.href = "login.html";
+  if (!email) {
+    window.location.href = "login.html";
+  }
+
+  const apiURL = `https://api.airtable.com/v0/${baseId}/${placeTable}`;
+  const itemTypesURL = `https://api.airtable.com/v0/${baseId}/${itemTypesTable}`;
+  let itemTypeMap = {};
+
+  function formatDate(dateStr) {
+    const [year, month, day] = dateStr.split("T")[0].split("-");
+    return `${month}-${day}-${year}`;
+  }
+
+  function addMonths(dateStr, months) {
+    const result = new Date(dateStr);
+    result.setMonth(result.getMonth() + months);
+    return result.toISOString().split("T")[0];
+  }
+
+  async function loadItemTypes() {
+    const res = await fetch(itemTypesURL, {
+      headers: { Authorization: `Bearer ${airtableApiKey}` }
+    });
+    const data = await res.json();
+    const dropdown = document.getElementById("itemType");
+
+    data.records.forEach(record => {
+      const id = record.id;
+      const { itemName, intervalMonths } = record.fields;
+      itemTypeMap[id] = { itemName, intervalMonths };
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = itemName;
+      dropdown.appendChild(opt);
+    });
+  }
+
+  async function loadPlaces() {
+    const filterFormula = `email="${email}"`;
+    const res = await fetch(`${apiURL}?filterByFormula=${encodeURIComponent(filterFormula)}&sort[0][field]=nextDue`, {
+      headers: { Authorization: `Bearer ${airtableApiKey}` }
+    });
+    const data = await res.json();
+    const tbody = document.getElementById("placeList");
+    tbody.innerHTML = "";
+
+    if (!data.records || data.records.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center">No reminders found.</td></tr>';
+      return;
     }
 
-    const apiURL = `https://api.airtable.com/v0/${baseId}/${placeTable}`;
-    const itemTypesURL = `https://api.airtable.com/v0/${baseId}/${itemTypesTable}`;
-    let itemTypeMap = {};
+    data.records.forEach(record => {
+      const { name, lastUpdated, nextDue, itemTypeName } = record.fields;
+      const id = record.id;
 
-    function formatDate(dateStr) {
-      const [year, month, day] = dateStr.split("T")[0].split("-");
-      return `${month}-${day}-${year}`;
+      const viewRow = document.createElement("tr");
+      viewRow.id = `view-${id}`;
+      viewRow.innerHTML = `
+        <td>${name}</td>
+        <td>${itemTypeName || "—"}</td>
+        <td>${formatDate(lastUpdated)}</td>
+        <td>${formatDate(nextDue)}</td>
+        <td>
+          <i class="fas fa-check-circle text-purple action-icon" title="Done" onclick="markDone('${id}')"></i>
+          <i class="fas fa-clock text-orange action-icon" title="Delay" onclick="delayReminder('${id}')"></i>
+          <i class="fas fa-edit text-muted action-icon" title="Edit" onclick="editReminder('${id}', '${name}', '${itemTypeName}', '${lastUpdated}')"></i>
+          <i class="fas fa-trash text-danger action-icon" title="Delete" onclick="deleteReminder('${id}')"></i>
+        </td>
+      `;
+      tbody.appendChild(viewRow);
+
+      const itemOptions = Object.values(itemTypeMap).map(val => {
+        const selected = itemTypeName === val.itemName ? 'selected' : '';
+        return `<option value="${val.itemName}" ${selected}>${val.itemName}</option>`;
+      }).join("");
+
+      const editRow = document.createElement("tr");
+      editRow.id = `edit-${id}`;
+      editRow.style.display = "none";
+      editRow.innerHTML = `
+        <td><input type="text" id="editName-${id}" class="form-control form-control-sm" value="${name}" /></td>
+        <td><select id="editItemType-${id}" class="form-select form-select-sm">${itemOptions}</select></td>
+        <td><input type="date" id="editLastUpdated-${id}" class="form-control form-control-sm" value="${lastUpdated}" /></td>
+        <td>–</td>
+        <td>
+          <button class="btn btn-sm btn-success me-1" onclick="saveEdit('${id}')">Save</button>
+          <button class="btn btn-sm btn-secondary" onclick="cancelEdit('${id}')">Cancel</button>
+        </td>
+      `;
+      tbody.appendChild(editRow);
+    });
+  }
+
+  function editReminder(id) {
+    document.getElementById(`view-${id}`).style.display = "none";
+    document.getElementById(`edit-${id}`).style.display = "table-row";
+  }
+
+  function cancelEdit(id) {
+    document.getElementById(`view-${id}`).style.display = "table-row";
+    document.getElementById(`edit-${id}`).style.display = "none";
+  }
+
+  async function saveEdit(id) {
+    const name = document.getElementById(`editName-${id}`).value.trim();
+    const itemTypeName = document.getElementById(`editItemType-${id}`).value;
+    const lastUpdated = document.getElementById(`editLastUpdated-${id}`).value;
+    const interval = Object.values(itemTypeMap).find(it => it.itemName === itemTypeName)?.intervalMonths;
+
+    if (!interval) {
+      alert("Invalid item type selected while editing. Please try again.");
+      return;
     }
 
-    function addMonths(dateStr, months) {
-      const result = new Date(dateStr);
-      result.setMonth(result.getMonth() + months);
-      return result.toISOString().split("T")[0];
-    }
+    const nextDue = addMonths(lastUpdated, interval);
 
-    async function loadItemTypes() {
-      const res = await fetch(itemTypesURL, {
-        headers: { Authorization: `Bearer ${airtableApiKey}` }
-      });
-      const data = await res.json();
-      const dropdown = document.getElementById("itemType");
-
-      data.records.forEach(record => {
-        const id = record.id;
-        const { itemName, intervalMonths } = record.fields;
-        itemTypeMap[id] = { itemName, intervalMonths };
-        const opt = document.createElement("option");
-        opt.value = id;
-        opt.textContent = itemName;
-        dropdown.appendChild(opt);
-      });
-    }
-
-    async function loadPlaces() {
-      const filterFormula = `email="${email}"`;
-      const res = await fetch(`${apiURL}?filterByFormula=${encodeURIComponent(filterFormula)}&sort[0][field]=nextDue`, {
-        headers: { Authorization: `Bearer ${airtableApiKey}` }
-      });
-      const data = await res.json();
-      const tbody = document.getElementById("placeList");
-      tbody.innerHTML = "";
-
-      if (!data.records || data.records.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-muted text-center">No reminders found.</td></tr>';
-        return;
-      }
-
-      data.records.forEach(record => {
-        const { name, lastUpdated, nextDue, itemTypeName } = record.fields;
-        const id = record.id;
-
-        const viewRow = document.createElement("tr");
-        viewRow.id = `view-${id}`;
-        viewRow.innerHTML = `
-          <td>${name}</td>
-          <td>${itemTypeName}</td>
-          <td>${formatDate(lastUpdated)}</td>
-          <td>${formatDate(nextDue)}</td>
-          <td>
-            <i class="fas fa-check-circle text-purple action-icon" title="Done" onclick="markDone('${id}')"></i>
-            <i class="fas fa-clock text-orange action-icon" title="Delay" onclick="delayReminder('${id}')"></i>
-            <i class="fas fa-edit text-muted action-icon" title="Edit" onclick="editReminder('${id}', '${name}', '${itemTypeName}', '${lastUpdated}')"></i>
-            <i class="fas fa-trash text-danger action-icon" title="Delete" onclick="deleteReminder('${id}')"></i>
-          </td>
-        `;
-        tbody.appendChild(viewRow);
-
-        const editRow = document.createElement("tr");
-        editRow.id = `edit-${id}`;
-        editRow.style.display = "none";
-
-        const itemOptions = Object.values(itemTypeMap).map(val => {
-          const selected = itemTypeName === val.itemName ? 'selected' : '';
-          return `<option value="${val.itemName}" ${selected}>${val.itemName}</option>`;
-        }).join("");
-
-        editRow.innerHTML = `
-          <td><input type="text" id="editName-${id}" class="form-control form-control-sm" value="${name}" /></td>
-          <td><select id="editItemType-${id}" class="form-select form-select-sm">${itemOptions}</select></td>
-          <td><input type="date" id="editLastUpdated-${id}" class="form-control form-control-sm" value="${lastUpdated}" /></td>
-          <td>–</td>
-          <td>
-            <button class="btn btn-sm btn-success me-1" onclick="saveEdit('${id}')">Save</button>
-            <button class="btn btn-sm btn-secondary" onclick="cancelEdit('${id}')">Cancel</button>
-          </td>
-        `;
-        tbody.appendChild(editRow);
-      });
-    }
-
-    function editReminder(id, name, itemTypeName, lastUpdated) {
-      document.getElementById(`view-${id}`).style.display = "none";
-      document.getElementById(`edit-${id}`).style.display = "table-row";
-    }
-
-    function cancelEdit(id) {
-      document.getElementById(`view-${id}`).style.display = "table-row";
-      document.getElementById(`edit-${id}`).style.display = "none";
-    }
-
-    async function saveEdit(id) {
-      const name = document.getElementById(`editName-${id}`).value.trim();
-      const itemTypeName = document.getElementById(`editItemType-${id}`).value;
-      const lastUpdated = document.getElementById(`editLastUpdated-${id}`).value;
-      const interval = Object.values(itemTypeMap).find(it => it.itemName === itemTypeName)?.intervalMonths || 6;
-      const nextDue = addMonths(lastUpdated, interval);
-
-      await fetch(`${apiURL}/${id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${airtableApiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ fields: { name, itemTypeName, intervalMonths: interval, lastUpdated, nextDue } })
-      });
-
-      loadPlaces();
-    }
-
-    async function deleteReminder(id) {
-      if (!confirm("Are you sure you want to delete this reminder?")) return;
-      await fetch(`${apiURL}/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${airtableApiKey}` }
-      });
-      loadPlaces();
-    }
-
-    async function markDone(id) {
-      const res = await fetch(`${apiURL}/${id}`, {
-        headers: { Authorization: `Bearer ${airtableApiKey}` }
-      });
-      const record = await res.json();
-      const interval = record.fields.intervalMonths || 6;
-      const today = new Date().toISOString().split("T")[0];
-      const nextDue = addMonths(today, interval);
-      await fetch(`${apiURL}/${id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${airtableApiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ fields: { lastUpdated: today, nextDue } })
-      });
-      loadPlaces();
-    }
-
-    async function delayReminder(id) {
-      const res = await fetch(`${apiURL}/${id}`, {
-        headers: { Authorization: `Bearer ${airtableApiKey}` }
-      });
-      const record = await res.json();
-      const currDate = new Date(record.fields.nextDue);
-      currDate.setMonth(currDate.getMonth() + 1);
-      const delayedDate = currDate.toISOString().split("T")[0];
-      await fetch(`${apiURL}/${id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${airtableApiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ fields: { nextDue: delayedDate } })
-      });
-      loadPlaces();
-    }
-
-    document.getElementById("placeForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const itemTypeId = document.getElementById("itemType").value;
-      const itemTypeName = itemTypeMap[itemTypeId].itemName;
-      const intervalMonths = itemTypeMap[itemTypeId].intervalMonths;
-      const lastUpdated = document.getElementById("lastUpdated").value;
-      const nextDue = addMonths(lastUpdated, intervalMonths);
-
-      await fetch(apiURL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${airtableApiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ fields: { name, itemTypeName, intervalMonths, lastUpdated, nextDue, email } })
-      });
-
-      document.getElementById("placeForm").reset();
-      loadPlaces();
+    await fetch(`${apiURL}/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ fields: { name, itemTypeName, intervalMonths: interval, lastUpdated, nextDue } })
     });
 
-    loadItemTypes().then(loadPlaces);
+    loadPlaces();
+  }
 
-    fetch('menu.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('menu-container').innerHTML = html;
-      });
-  </script>
+  async function deleteReminder(id) {
+    if (!confirm("Are you sure you want to delete this reminder?")) return;
+    await fetch(`${apiURL}/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${airtableApiKey}` }
+    });
+    loadPlaces();
+  }
+
+  async function markDone(id) {
+    const res = await fetch(`${apiURL}/${id}`, {
+      headers: { Authorization: `Bearer ${airtableApiKey}` }
+    });
+    const record = await res.json();
+    const interval = record.fields.intervalMonths || 6;
+    const today = new Date().toISOString().split("T")[0];
+    const nextDue = addMonths(today, interval);
+    await fetch(`${apiURL}/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ fields: { lastUpdated: today, nextDue } })
+    });
+    loadPlaces();
+  }
+
+  async function delayReminder(id) {
+    const res = await fetch(`${apiURL}/${id}`, {
+      headers: { Authorization: `Bearer ${airtableApiKey}` }
+    });
+    const record = await res.json();
+    const currDate = new Date(record.fields.nextDue);
+    currDate.setMonth(currDate.getMonth() + 1);
+    const delayedDate = currDate.toISOString().split("T")[0];
+    await fetch(`${apiURL}/${id}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ fields: { nextDue: delayedDate } })
+    });
+    loadPlaces();
+  }
+
+  document.getElementById("placeForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const itemTypeId = document.getElementById("itemType").value;
+    const itemTypeEntry = itemTypeMap[itemTypeId];
+
+    if (!itemTypeEntry) {
+      alert("Invalid item type selected. Please try again.");
+      return;
+    }
+
+    const itemTypeName = itemTypeEntry.itemName;
+    const intervalMonths = itemTypeEntry.intervalMonths;
+    const lastUpdated = document.getElementById("lastUpdated").value;
+    const nextDue = addMonths(lastUpdated, intervalMonths);
+
+    await fetch(apiURL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${airtableApiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        fields: { name, itemTypeName, intervalMonths, lastUpdated, nextDue, email }
+      })
+    });
+
+    document.getElementById("placeForm").reset();
+    loadPlaces();
+  });
+
+  loadItemTypes().then(loadPlaces);
+
+  fetch("menu.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("menu-container").innerHTML = html;
+    });
+</script>
 </body>
 </html>
