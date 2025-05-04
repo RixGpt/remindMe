@@ -19,6 +19,16 @@
     td input[type="date"] {
       max-width: 160px;
     }
+    .action-icon {
+      margin-right: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .text-primary:hover,
+    .text-muted:hover,
+    .text-danger:hover {
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -179,8 +189,8 @@
           <td>${formattedDate}</td>
           <td>${formattedReminder}</td>
           <td>
-            <button onclick="editBirthday('${id}')" class="btn btn-sm btn-outline-primary me-1">Edit</button>
-            <button onclick="deleteBirthday('${id}')" class="btn btn-sm btn-outline-danger">Delete</button>
+            <i class="fas fa-edit text-primary action-icon" title="Edit" onclick="editBirthday('${id}')"></i>
+            <i class="fas fa-trash text-danger action-icon" title="Delete" onclick="deleteBirthday('${id}')"></i>
           </td>
         `;
 
