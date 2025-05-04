@@ -99,8 +99,9 @@
   function addMonths(dateStr, months) {
     const result = new Date(dateStr);
     result.setMonth(result.getMonth() + months);
-    return result.toISOString().split("T")[0];
+    return result.toLocaleDateString('en-CA'); // ✅ YYYY-MM-DD in local time
   }
+
 
   async function loadItemTypes() {
     const res = await fetch(itemTypesURL, {
