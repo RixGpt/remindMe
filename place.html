@@ -21,19 +21,13 @@
       cursor: pointer;
       font-size: 1rem;
     }
-    .text-purple {
-      color: #6f42c1;
-    }
-    .text-orange {
-      color: #d77b00;
-    }
-    .text-purple:hover,
-    .text-orange:hover,
+    .text-primary:hover,
     .text-muted:hover,
     .text-danger:hover {
       opacity: 0.8;
     }
   </style>
+
 </head>
 <body>
   <div class="container-narrow">
@@ -147,12 +141,13 @@
         <td>${formatDate(lastUpdated)}</td>
         <td>${formatDate(nextDue)}</td>
         <td>
-          <i class="fas fa-check-circle text-purple action-icon" title="Done" onclick="markDone('${id}')"></i>
-          <i class="fas fa-clock text-orange action-icon" title="Delay" onclick="delayReminder('${id}')"></i>
-          <i class="fas fa-edit text-muted action-icon" title="Edit" onclick="editReminder('${id}', '${name}', '${itemTypeName}', '${lastUpdated}')"></i>
+          <i class="fas fa-check-circle text-primary action-icon" title="Done" onclick="markDone('${id}')"></i>
+          <i class="fas fa-clock text-primary action-icon" title="Delay" onclick="delayReminder('${id}')"></i>
+          <i class="fas fa-edit text-primary action-icon" title="Edit" onclick="editReminder('${id}', '${name}', '${itemTypeName}', '${lastUpdated}')"></i>
           <i class="fas fa-trash text-danger action-icon" title="Delete" onclick="deleteReminder('${id}')"></i>
         </td>
       `;
+
       tbody.appendChild(viewRow);
 
       const itemOptions = Object.values(itemTypeMap).map(val => {
