@@ -11,67 +11,60 @@
       font-family: 'Segoe UI', sans-serif;
       background: #fffbea;
       margin: 0;
-      padding: 0;
     }
 
-    .navbar-custom {
+    .container-narrow {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .top-bar {
       background-color: #fffbea;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 1.2rem 0;
       border-bottom: 1px solid #eee;
     }
 
-    .navbar-brand {
+    .top-bar .brand {
       display: flex;
       align-items: center;
     }
 
-    .navbar-brand i {
+    .brand i {
       font-size: 2rem;
       color: #6f42c1;
       margin-right: 0.75rem;
     }
 
-    .brand-text h1 {
-      font-size: 1.5rem;
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
       margin: 0;
-      font-weight: bold;
       color: #212529;
     }
 
-    .brand-text p {
+    .brand p {
+      font-size: 0.85rem;
       margin: 0;
-      font-size: 0.9rem;
       color: #555;
-    }
-
-    .nav-buttons a {
-      margin-left: 1rem;
-      font-weight: 500;
     }
 
     .hero {
       background: radial-gradient(circle at center, #fff6d6, #ffedb5);
-      padding: 5rem 2rem 4rem;
-      text-align: left;
-      max-width: 900px;
-      margin: 0 auto;
+      padding: 5rem 1rem 4rem;
     }
 
-    .hero-title {
+    .hero h2 {
       font-size: 3rem;
       font-weight: 700;
       color: #1a1a1a;
       margin-bottom: 1rem;
     }
 
-    .hero-subtitle {
-      font-size: 1.25rem;
+    .hero p {
+      font-size: 1.2rem;
       color: #333;
       max-width: 700px;
-      margin-bottom: 2rem;
     }
 
     .btn-cta {
@@ -105,37 +98,41 @@
 </head>
 <body>
 
-  <!-- Top Navigation -->
-  <div class="navbar-custom">
-    <div class="navbar-brand">
-      <i class="fas fa-dove"></i>
-      <div class="brand-text">
-        <h1>Nudgie</h1>
-        <p>A smart nudge when you need it</p>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container-narrow d-flex justify-content-between align-items-center">
+      <div class="brand">
+        <i class="fas fa-dove"></i>
+        <div>
+          <h1>Nudgie</h1>
+          <p>A smart nudge when you need it</p>
+        </div>
       </div>
-    </div>
-    <div class="nav-buttons">
-      <a href="login.html" class="btn btn-outline-dark">Log in</a>
-      <a href="signup.html" class="btn btn-cta">Get started</a>
+      <div>
+        <a href="login.html" class="btn btn-outline-dark me-2">Log in</a>
+        <a href="signup.html" class="btn btn-cta">Get started</a>
+      </div>
     </div>
   </div>
 
   <!-- Hero Section -->
   <div class="hero">
-    <div class="hero-title">Reminders that help you take action</div>
-    <div class="hero-subtitle">
-      Nudgie doesn’t just help you remember — it gives you the nudge to actually follow through.  
-      Replace your air filter. Buy that birthday gift. Reach out.  
-      All for free — no tracking, no tricks.
-    </div>
+    <div class="container-narrow text-start">
+      <h2>Reminders that help you take action</h2>
+      <p>
+        Nudgie doesn’t just help you remember — it gives you the nudge to actually follow through.
+        Replace your air filter. Buy that birthday gift. Reach out.
+        All for free — no tracking, no tricks.
+      </p>
 
-    <a href="signup.html" class="btn btn-cta mb-4">Get started — it’s free</a>
+      <a href="signup.html" class="btn btn-cta mt-3">Get started — it’s free</a>
 
-    <div>
-      <div class="icon-box"><i class="fas fa-gift"></i></div>
-      <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
-      <div class="icon-box"><i class="fas fa-home"></i></div>
-      <div class="icon-box"><i class="fas fa-user-friends"></i></div>
+      <div class="mt-5">
+        <div class="icon-box"><i class="fas fa-gift"></i></div>
+        <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
+        <div class="icon-box"><i class="fas fa-home"></i></div>
+        <div class="icon-box"><i class="fas fa-user-friends"></i></div>
+      </div>
     </div>
   </div>
 
