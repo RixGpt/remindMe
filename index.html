@@ -14,7 +14,7 @@
     }
 
     .container-narrow {
-      max-width: 1100px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 0 1rem;
     }
@@ -55,20 +55,20 @@
     }
 
     .hero h2 {
-      font-size: 3rem;
+      font-size: 2.5rem;
       font-weight: 700;
       color: #1a1a1a;
       margin-bottom: 1rem;
     }
 
     .hero p {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       color: #333;
       max-width: 700px;
     }
 
-    .btn-cta {
-      background-color: #1a1a1a;
+    .btn-purple {
+      background-color: #6f42c1;
       color: #fff;
       font-weight: 600;
       padding: 0.75rem 1.5rem;
@@ -77,8 +77,9 @@
       transition: 0.2s ease;
     }
 
-    .btn-cta:hover {
-      background-color: #333;
+    .btn-purple:hover {
+      background-color: #5a34a1;
+      color: #fff;
     }
 
     .icon-box {
@@ -93,6 +94,22 @@
     .icon-box i {
       font-size: 1.5rem;
       color: #333;
+    }
+
+    .screenshot-row {
+      margin-top: 3rem;
+    }
+
+    .screenshot-placeholder {
+      background-color: #e0e0e0;
+      height: 200px;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 1rem;
+      font-style: italic;
     }
   </style>
 </head>
@@ -110,7 +127,7 @@
       </div>
       <div>
         <a href="login.html" class="btn btn-outline-dark me-2">Log in</a>
-        <a href="signup.html" class="btn btn-cta">Get started</a>
+        <a href="signup.html" class="btn btn-purple">Get started</a>
       </div>
     </div>
   </div>
@@ -125,13 +142,23 @@
         All for free — no tracking, no tricks.
       </p>
 
-      <a href="signup.html" class="btn btn-cta mt-3">Get started — it’s free</a>
+      <a href="signup.html" class="btn btn-purple mt-3">Get started — it’s free</a>
 
-      <div class="mt-5">
+      <div class="mt-4">
         <div class="icon-box"><i class="fas fa-gift"></i></div>
         <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
         <div class="icon-box"><i class="fas fa-home"></i></div>
         <div class="icon-box"><i class="fas fa-user-friends"></i></div>
+      </div>
+
+      <!-- Screenshot Placeholders -->
+      <div class="row screenshot-row g-3">
+        <div class="col-md-6">
+          <div class="screenshot-placeholder">Screenshot 1</div>
+        </div>
+        <div class="col-md-6">
+          <div class="screenshot-placeholder">Screenshot 2</div>
+        </div>
       </div>
     </div>
   </div>
