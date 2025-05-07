@@ -14,26 +14,64 @@
       padding: 0;
     }
 
+    .navbar-custom {
+      background-color: #fffbea;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+    }
+
+    .navbar-brand i {
+      font-size: 2rem;
+      color: #6f42c1;
+      margin-right: 0.75rem;
+    }
+
+    .brand-text h1 {
+      font-size: 1.5rem;
+      margin: 0;
+      font-weight: bold;
+      color: #212529;
+    }
+
+    .brand-text p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .nav-buttons a {
+      margin-left: 1rem;
+      font-weight: 500;
+    }
+
     .hero {
       background: radial-gradient(circle at center, #fff6d6, #ffedb5);
-      padding: 6rem 1rem 5rem;
-      text-align: center;
+      padding: 5rem 2rem 4rem;
+      text-align: left;
+      max-width: 900px;
+      margin: 0 auto;
     }
 
     .hero-title {
       font-size: 3rem;
       font-weight: 700;
       color: #1a1a1a;
-      max-width: 700px;
-      margin: 0 auto 1rem;
-      line-height: 1.2;
+      margin-bottom: 1rem;
     }
 
     .hero-subtitle {
       font-size: 1.25rem;
       color: #333;
-      max-width: 600px;
-      margin: 0 auto 2.5rem;
+      max-width: 700px;
+      margin-bottom: 2rem;
     }
 
     .btn-cta {
@@ -55,7 +93,7 @@
       background: #fff;
       border-radius: 0.6rem;
       padding: 0.5rem 0.6rem;
-      margin: 0.5rem;
+      margin: 0.5rem 0.5rem 0 0;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
@@ -63,41 +101,37 @@
       font-size: 1.5rem;
       color: #333;
     }
-
-    .nav-buttons {
-      position: absolute;
-      top: 1.5rem;
-      right: 2rem;
-    }
-
-    .nav-buttons a {
-      margin-left: 1rem;
-      font-weight: 500;
-    }
   </style>
 </head>
 <body>
 
-  <div class="hero position-relative">
+  <!-- Top Navigation -->
+  <div class="navbar-custom">
+    <div class="navbar-brand">
+      <i class="fas fa-dove"></i>
+      <div class="brand-text">
+        <h1>Nudgie</h1>
+        <p>A smart nudge when you need it</p>
+      </div>
+    </div>
     <div class="nav-buttons">
       <a href="login.html" class="btn btn-outline-dark">Log in</a>
       <a href="signup.html" class="btn btn-cta">Get started</a>
     </div>
+  </div>
 
-    <div class="d-flex justify-content-center align-items-center mb-4">
-      <i class="fas fa-dove me-2 text-purple" style="color:#6f42c1; font-size: 2.5rem;"></i>
-      <h1 class="hero-title mb-0">Nudgie</h1>
-    </div>
-
+  <!-- Hero Section -->
+  <div class="hero">
     <div class="hero-title">Reminders that help you take action</div>
     <div class="hero-subtitle">
-      Nudgie doesn’t just help you remember — it gives you the nudge to actually follow through.<br/>
-      Replace your air filter. Buy that birthday gift. Reach out. All for free — no tracking, no tricks.
+      Nudgie doesn’t just help you remember — it gives you the nudge to actually follow through.  
+      Replace your air filter. Buy that birthday gift. Reach out.  
+      All for free — no tracking, no tricks.
     </div>
 
-    <a href="signup.html" class="btn btn-cta">Get started — it’s free</a>
+    <a href="signup.html" class="btn btn-cta mb-4">Get started — it’s free</a>
 
-    <div class="mt-5">
+    <div>
       <div class="icon-box"><i class="fas fa-gift"></i></div>
       <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
       <div class="icon-box"><i class="fas fa-home"></i></div>
