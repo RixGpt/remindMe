@@ -49,7 +49,7 @@
       color: #555;
     }
 
-    .hero {
+    .hero-box {
       background: radial-gradient(circle at center, #fff6d6, #ffedb5);
       padding: 5rem 1rem 4rem;
     }
@@ -96,8 +96,9 @@
       color: #333;
     }
 
-    .screenshot-row {
-      margin-top: 3rem;
+    .screenshot-section {
+      background: #ffffff;
+      padding: 3rem 1rem;
     }
 
     .screenshot-placeholder {
@@ -133,8 +134,8 @@
   </div>
 
   <!-- Hero Section -->
-  <div class="hero">
-    <div class="container-narrow text-start">
+  <div class="hero-box">
+    <div class="container-narrow text-start hero">
       <h2>Reminders that help you take action</h2>
       <p>
         Nudgie doesn’t just help you remember — it gives you the nudge to actually follow through.
@@ -150,9 +151,13 @@
         <div class="icon-box"><i class="fas fa-home"></i></div>
         <div class="icon-box"><i class="fas fa-user-friends"></i></div>
       </div>
+    </div>
+  </div>
 
-      <!-- Screenshot Placeholders -->
-      <div class="row screenshot-row g-3">
+  <!-- Screenshot Section -->
+  <div class="screenshot-section">
+    <div class="container-narrow">
+      <div class="row g-3">
         <div class="col-md-6">
           <div class="screenshot-placeholder">Screenshot 1</div>
         </div>
