@@ -16,6 +16,33 @@
       margin: 0 auto;
       padding: 4rem 1rem;
     }
+    .brand-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .brand-header i {
+      font-size: 2rem;
+      color: #6f42c1; /* purple */
+      margin-right: 0.5rem;
+    }
+    .brand-title {
+      font-size: 1.75rem;
+      font-weight: bold;
+      color: #212529;
+      margin: 0;
+    }
+    .brand-subtitle {
+      font-size: 1rem;
+      color: #6c757d;
+    }
+    .intro {
+      margin-bottom: 2rem;
+    }
+    .feature-point {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
     .screenshot-placeholder {
       background-color: #dee2e6;
       height: 200px;
@@ -29,23 +56,30 @@
     .cta-buttons .btn {
       margin-right: 1rem;
     }
-    .feature-point {
-      margin-bottom: 1rem;
-      font-size: 1.1rem;
-    }
   </style>
 </head>
 <body>
   <div class="container-narrow">
-    <h1 class="mb-4">👋 Meet Nudgie</h1>
-    <p class="lead text-muted mb-4">
-      Nudgie is the free reminder app that helps you remember what matters — and actually get it done.
-    </p>
+    <div class="brand-header">
+      <i class="fas fa-dove"></i>
+      <div>
+        <p class="brand-title mb-0">Nudgie</p>
+        <p class="brand-subtitle mb-0">Remember what matters</p>
+      </div>
+    </div>
+
+    <div class="intro">
+      <h2 class="mb-3">Hi, I’m Nudgie</h2>
+      <p class="lead text-muted">
+        I’m your friendly reminder app — here to help you not only *remember* what matters, but actually *take action* on it.
+        Whether it’s buying a birthday gift, replacing your air filter, or checking in on a friend — I’ll give you a little nudge at just the right time.
+      </p>
+    </div>
 
     <div class="mb-4">
       <p class="feature-point"><i class="fas fa-bell me-2 text-primary"></i> Nudgie reminds you about important things like birthdays, tasks, and home upkeep.</p>
-      <p class="feature-point"><i class="fas fa-check-circle me-2 text-success"></i> Nudgie nudges you to take action — like buying presents or changing filters — not just remember.</p>
-      <p class="feature-point"><i class="fas fa-lock me-2 text-secondary"></i> It's 100% free. No subscriptions. No data selling. No creepy tracking.</p>
+      <p class="feature-point"><i class="fas fa-check-circle me-2 text-success"></i> Nudgie nudges you to take action — not just remember.</p>
+      <p class="feature-point"><i class="fas fa-lock me-2 text-secondary"></i> It’s 100% free. No subscriptions. No data selling. No creepy tracking.</p>
     </div>
 
     <div class="row g-3 mb-4">
