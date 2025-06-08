@@ -40,22 +40,25 @@
     <h2 class="mb-4">Place Reminders</h2>
 
     <form id="placeForm" class="row g-3 mb-4">
-      
       <div class="col-md-4">
+        <label for="itemType" class="form-label">Item</label>
         <select id="itemType" class="form-select" required>
           <option value="">Select Item Type</option>
         </select>
       </div>
       <div class="col-md-4">
+        <label for="name" class="form-label">Friendly Name</label>
         <input type="text" id="name" class="form-control" placeholder="Item Name (e.g., Upstairs filter)" required />
       </div>
       <div class="col-md-4">
+        <label for="lastUpdated" class="form-label">Last Changed</label>
         <input type="date" id="lastUpdated" class="form-control" required />
       </div>
       <div class="col-md-4 d-flex align-items-end">
         <button type="submit" class="btn btn-primary w-100">Add</button>
       </div>
     </form>
+
 
     <table class="table table-bordered table-striped align-middle" id="placeTable">
       <thead class="table-light">
